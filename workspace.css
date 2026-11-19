@@ -1,0 +1,869 @@
+/* Keep the tool screens readable while carrying the snow entrance palette through. */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  max-width: none;
+  padding: 12px max(28px, calc((100% - 1224px) / 2));
+  gap: 12px 24px;
+  background: #182431;
+  color: #f5f7fa;
+  border-bottom: 1px solid #354758;
+}
+.header .brand { font-size: 16px; letter-spacing: .04em; }
+.workspace-logo { display: block; width: 62px; height: auto; }
+.navigation { position: relative; isolation: isolate; }
+.navigation > :not(.navigation-indicator) { position: relative; z-index: 1; }
+.navigation a { color: #c9d4df; border-radius: 6px; }
+.navigation a:hover { background: #27394a; color: #fff; }
+.navigation a[aria-current] {
+  color: #fff;
+  background: transparent;
+  box-shadow: none;
+}
+.navigation-indicator {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: var(--nav-width, 0px);
+  height: var(--nav-height, 0px);
+  border-radius: 6px;
+  background: #293c4f;
+  box-shadow: inset 0 -2px #ece3cc;
+  opacity: 0;
+  pointer-events: none;
+}
+.navigation #workbench-nav {
+  background: transparent;
+  border: 1px solid #62788c;
+  color: #f5f7fa;
+  border-radius: 6px;
+}
+.navigation #workbench-nav:hover:enabled { background: #293c4f; }
+.header :is(a, button):focus-visible { outline-color: #ece3cc; }
+main { padding-top: clamp(26px, 4vw, 48px); }
+.page-heading h1 { letter-spacing: 0; }
+.page-heading .description { font-size: 14px; letter-spacing: 0; }
+.panel, .viewer-shell { border-radius: 12px; }
+.button, select { border-radius: 7px; }
+.primary { background: #24394b; }
+.primary > span { color: inherit; }
+.plan-grid { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); }
+.plan-card-title { font-size: 19px; letter-spacing: 0; margin-bottom: 22px; }
+.type-option { border-radius: 8px; padding: 13px; }
+.type-option:has(input:checked) { box-shadow: inset 0 0 0 1px #6e8da6; }
+.rule-guide { background: #edf2f7; }
+.rule-guide h2 { font-size: 17px; margin-bottom: 18px; }
+.rule-guide .reference-note { background: #e2ebf3; }
+.rule-preview { border-radius: 8px; }
+.plan-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.plan-actions .button { flex: 1 1 190px; }
+#packing-workbench #wb-confirm:enabled { background: #24394b; box-shadow: none; }
+#packing-workbench .wb-mode-switch button[aria-pressed="true"] { background: #476783; }
+
+@media (max-width: 850px) {
+  .plan-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .header { padding: 8px 14px; gap: 5px; }
+  .navigation { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .navigation a { font-size: 11px; padding-inline: 2px; }
+  .type-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .type-option { padding: 10px; gap: 7px; align-items: start; }
+  .type-option strong { font-size: 13px; }
+  .type-option input { margin-top: 1px; }
+  .type-symbol { display: none; }
+}
+
+/* The trail image carries the entrance into the planning screens. */
+.trail-heading {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-height: clamp(136px, 16vw, 188px);
+  padding: 22px clamp(18px, 3vw, 36px);
+  border-radius: 12px;
+  color: #f5f7fa;
+  background: #24394b;
+}
+.trail-heading-image, .trail-heading::before {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.trail-heading-image { z-index: -2; object-fit: cover; object-position: center 42%; }
+.trail-heading::before {
+  content: "";
+  z-index: -1;
+  background: linear-gradient(90deg, #142331f5, #142331c7 40%, #14233125 86%);
+}
+.trail-heading h1 { margin: 0; }
+.trail-heading .description { color: #e3ebf3; }
+.trail-heading-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  color: #e3ebf3;
+  font-size: 14px;
+}
+.trail-heading-progress strong { color: #ece3cc; }
+@media (prefers-reduced-motion: no-preference) {
+  .view:not([hidden]) {
+    animation: workspace-view-arrive 620ms cubic-bezier(.2, .72, .22, 1) both;
+  }
+
+  #view-explore > .intro,
+  #view-explore > .explore-grid,
+  #view-plan > .trail-heading,
+  #view-plan > .plan-grid,
+  #view-library > .trail-heading,
+  #view-library > .gear-personal,
+  #view-library > .catalog-search-hero,
+  #view-library > #product-catalog,
+  #view-library > #reference-gear,
+  #view-library > .library-toolbar,
+  #view-library > #gear-grid,
+  #view-checklist > .trail-heading,
+  #view-checklist > #checklist-empty,
+  #checklist-content > .progress-panel,
+  #checklist-content > .trip-choice-picker,
+  #checklist-content > .trip-packing-cta,
+  #checklist-content > .checklist-toolbar,
+  #checklist-content > #checklist-groups,
+  #checklist-content > .checklist-note {
+    animation: workspace-section-arrive 680ms cubic-bezier(.2, .72, .22, 1) both;
+  }
+
+  #view-explore > .explore-grid,
+  #view-plan > .plan-grid,
+  #view-library > .gear-personal,
+  #view-checklist > #checklist-empty,
+  #checklist-content > .progress-panel { animation-delay: 110ms; }
+  #view-library > .catalog-search-hero,
+  #checklist-content > .trip-choice-picker { animation-delay: 200ms; }
+  #view-library > #product-catalog,
+  #checklist-content > .trip-packing-cta { animation-delay: 290ms; }
+  #view-library > #reference-gear,
+  #checklist-content > .checklist-toolbar { animation-delay: 360ms; }
+  #view-library > .library-toolbar,
+  #checklist-content > #checklist-groups { animation-delay: 420ms; }
+
+  #view-plan .trail-heading-image,
+  #view-library .trail-heading-image,
+  #view-checklist .trail-heading-image {
+    transform-origin: center;
+    animation: workspace-heading-pan 2200ms cubic-bezier(.18, .65, .24, 1) both;
+  }
+
+  #view-library .catalog-search-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  #view-library .catalog-search-hero::after {
+    content: "";
+    position: absolute;
+    inset: -45% auto -45% -28%;
+    z-index: 0;
+    width: 22%;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, #ffffffa8, transparent);
+    transform: translateX(-180%) rotate(18deg);
+    animation: catalog-hero-sweep 1250ms 480ms cubic-bezier(.2, .72, .22, 1) both;
+  }
+
+  #view-library .catalog-search-hero > * { position: relative; z-index: 1; }
+
+  #gear-grid > .gear-card,
+  #checklist-groups > .checklist-group {
+    animation: workspace-section-arrive 560ms cubic-bezier(.2, .72, .22, 1) backwards;
+  }
+
+  #gear-grid > .gear-card:nth-child(8n + 2),
+  #checklist-groups > .checklist-group:nth-child(8n + 2) { animation-delay: 45ms; }
+  #gear-grid > .gear-card:nth-child(8n + 3),
+  #checklist-groups > .checklist-group:nth-child(8n + 3) { animation-delay: 90ms; }
+  #gear-grid > .gear-card:nth-child(8n + 4),
+  #checklist-groups > .checklist-group:nth-child(8n + 4) { animation-delay: 135ms; }
+  #gear-grid > .gear-card:nth-child(8n + 5),
+  #checklist-groups > .checklist-group:nth-child(8n + 5) { animation-delay: 180ms; }
+  #gear-grid > .gear-card:nth-child(8n + 6),
+  #checklist-groups > .checklist-group:nth-child(8n + 6) { animation-delay: 225ms; }
+  #gear-grid > .gear-card:nth-child(8n + 7),
+  #checklist-groups > .checklist-group:nth-child(8n + 7) { animation-delay: 270ms; }
+  #gear-grid > .gear-card:nth-child(8n),
+  #checklist-groups > .checklist-group:nth-child(8n) { animation-delay: 315ms; }
+
+  @view-transition { navigation: auto; }
+  #view-plan .trail-heading-image { view-transition-name: trail-image; }
+  ::view-transition { pointer-events: none; }
+  ::view-transition-group(trail-image) {
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(.22, .72, .24, 1);
+  }
+  ::view-transition-old(trail-image),
+  ::view-transition-new(trail-image) {
+    object-fit: cover;
+    object-position: center 42%;
+  }
+  ::view-transition-image-pair(trail-image) {
+    overflow: clip;
+    border-radius: 12px;
+  }
+  html[data-trail-arrival] #view-plan .trail-heading::after {
+    content: "";
+    position: absolute;
+    inset: -30% -12%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 78% 70%, #dceaf551, transparent 52%);
+    opacity: 0;
+    animation: trail-gust 2.8s 350ms ease-out;
+  }
+  html[data-trail-arrival] #view-plan .trail-heading-image {
+    animation: trail-settle 3s ease-out both;
+  }
+  ::view-transition-old(root) { animation: none; opacity: 0; }
+  ::view-transition-new(root) { animation: none; }
+}
+
+@keyframes trail-settle {
+  0%, 100% { object-position: center 42%; }
+  38% { object-position: center 45%; }
+}
+@keyframes trail-gust {
+  0% { opacity: 0; transform: translate(9%, 3%); }
+  25% { opacity: .65; }
+  100% { opacity: 0; transform: translate(-10%, -4%); }
+}
+
+.trip-intent { display: grid; gap: 10px; margin-bottom: 16px; }
+.trip-intent label, .trip-manual summary { font-weight: 600; }
+.trip-intent textarea, #trip-destination {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #c1cfdb;
+  border-radius: 7px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+}
+.trip-intent textarea { resize: vertical; }
+.trip-intent .button { justify-self: start; }
+#trip-intent-result { margin: 0; }
+#trip-intent-result:empty { display: none; }
+.trip-manual summary { cursor: pointer; margin-bottom: 12px; }
+
+#trip-equipment-highlights, #trip-equipment-list {
+  padding-inline-start: 20px;
+  font-size: 13px;
+  line-height: 1.75;
+}
+#trip-equipment-highlights li + li { margin-top: 4px; }
+.trip-equipment-details { margin-top: 12px; }
+.trip-equipment-details summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+#trip-equipment-list { columns: 2; column-gap: 24px; }
+#trip-equipment-list li { break-inside: avoid; }
+@media (max-width: 480px) {
+  #trip-equipment-list { columns: 1; }
+}
+
+.trip-weather-panel { margin-bottom: 16px; padding: 13px 18px; }
+.trip-weather-panel summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+.trip-weather-panel .field-help { margin: 8px 0 0; }
+
+#trip-weather { white-space: pre-line; }
+
+.plan-grid-single { grid-template-columns: minmax(0, 1fr); max-width: 850px; }
+.rule-preview { position: relative; }
+.rule-preview-heading { display: flex; align-items: center; gap: 8px; }
+#rule-help-toggle {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #9db1c2;
+  border-radius: 50%;
+  color: #24394b;
+  background: #fff;
+  font-weight: 700;
+}
+#rule-help-toggle:hover, #rule-help-toggle[aria-expanded="true"] { background: #dce9f3; }
+#rule-help-panel {
+  position: absolute;
+  z-index: 5;
+  top: 48px;
+  left: 10px;
+  right: 10px;
+  max-width: 490px;
+  max-height: min(480px, 60dvh);
+  overflow: auto;
+  padding: 18px;
+  box-shadow: 0 12px 32px #24394b35;
+}
+.rule-help:has(#rule-help-panel:not([hidden]))::after {
+  content: "";
+  position: absolute;
+  top: 44px;
+  left: 10px;
+  width: min(calc(100% - 20px), 490px);
+  height: 5px;
+}
+#rule-help-panel h2 { margin-bottom: 12px; }
+#rule-help-panel .rule-list li { margin-bottom: 9px; padding-bottom: 9px; }
+#rule-help-panel .rule-list p { margin-top: 3px; }
+#rule-help-panel .reference-note { margin: 12px 0 8px; }
+
+/* Small interface responses keep everyday planning as lively as the trail view. */
+@media (prefers-reduced-motion: no-preference) {
+  button:not(:disabled),
+  .navigation a,
+  .navigation-indicator,
+  .official-variant,
+  .gear-card,
+  .check-row,
+  .type-option,
+  .trip-choice-row,
+  input,
+  select,
+  textarea {
+    transition:
+      transform 180ms cubic-bezier(.2, .7, .25, 1),
+      box-shadow 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  button:not(:disabled):active {
+    transform: translateY(1px) scale(.985);
+  }
+
+  .navigation a:hover,
+  .navigation #workbench-nav:hover:enabled {
+    transform: translateY(-1px);
+  }
+
+  .navigation-indicator {
+    opacity: 1;
+    transform: translate3d(var(--nav-x, 0px), var(--nav-y, 0px), 0);
+    transition:
+      transform 380ms cubic-bezier(.2, .8, .25, 1),
+      width 260ms cubic-bezier(.2, .8, .25, 1),
+      height 260ms cubic-bezier(.2, .8, .25, 1);
+    will-change: transform, width, height;
+  }
+
+  .official-variant:hover,
+  .gear-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px #263e3417;
+  }
+
+  .official-variant.is-selected {
+    box-shadow: 0 0 0 2px #476783, 0 8px 20px #263e3412;
+    transform: translateY(-2px);
+  }
+
+  .official-variant.is-revealing {
+    animation: catalog-card-reveal 560ms cubic-bezier(.2, .72, .22, 1) both;
+    animation-delay: var(--catalog-reveal-delay, 0ms);
+  }
+
+  .official-variant.motion-pending {
+    opacity: 0;
+  }
+
+  .catalog-selection:not([hidden]),
+  .catalog-empty:not([hidden]),
+  .trip-weather-panel:not([hidden]),
+  #rule-help-panel:not([hidden]) {
+    animation: workspace-panel-reveal 420ms cubic-bezier(.2, .72, .22, 1) both;
+  }
+
+  details[open] > :not(summary) {
+    animation: workspace-details-reveal 340ms ease-out both;
+  }
+
+  .check-row:has(input:checked) {
+    background-color: #edf3e8;
+    border-radius: 8px;
+  }
+
+  .check-row input:checked {
+    animation: checklist-check-pop 180ms cubic-bezier(.2, .8, .25, 1.35);
+  }
+
+  #preparation-progress::-webkit-progress-value {
+    transition: width 360ms cubic-bezier(.2, .7, .25, 1);
+  }
+
+  #preparation-progress::-moz-progress-bar {
+    transition: width 360ms cubic-bezier(.2, .7, .25, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view:not([hidden]),
+  #view-explore > .intro,
+  #view-explore > .explore-grid,
+  #view-plan > .trail-heading,
+  #view-plan > .plan-grid,
+  #view-library > .trail-heading,
+  #view-library > .gear-personal,
+  #view-library > .catalog-search-hero,
+  #view-library > #product-catalog,
+  #view-library > #reference-gear,
+  #view-library > .library-toolbar,
+  #view-library > #gear-grid,
+  #view-checklist > .trail-heading,
+  #view-checklist > #checklist-empty,
+  #checklist-content > *,
+  #gear-grid > .gear-card,
+  #checklist-groups > .checklist-group,
+  #view-library .catalog-search-hero::after {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  #view-plan .trail-heading-image,
+  #view-library .trail-heading-image,
+  #view-checklist .trail-heading-image { transform: none; }
+
+  .official-variant.is-revealing,
+  .catalog-selection:not([hidden]),
+  .catalog-empty:not([hidden]),
+  .trip-weather-panel:not([hidden]),
+  #rule-help-panel:not([hidden]),
+  details[open] > :not(summary),
+  .check-row input:checked {
+    animation: none;
+  }
+
+  button:not(:disabled),
+  .navigation a,
+  .official-variant,
+  .gear-card,
+  .check-row,
+  .type-option,
+  .trip-choice-row,
+  input,
+  select,
+  textarea {
+    transition: none;
+  }
+}
+
+@keyframes catalog-card-reveal {
+  from { opacity: 0; transform: translateY(22px) scale(.975); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes workspace-panel-reveal {
+  from { opacity: 0; transform: translateY(16px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes workspace-details-reveal {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes workspace-view-arrive {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes workspace-section-arrive {
+  from { opacity: 0; transform: translateY(24px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes workspace-heading-pan {
+  from { transform: scale(1.12) translateX(1%); }
+  to { transform: scale(1) translateX(0); }
+}
+
+@keyframes catalog-hero-sweep {
+  0% { opacity: 0; transform: translateX(-180%) rotate(18deg); }
+  28% { opacity: .55; }
+  100% { opacity: 0; transform: translateX(690%) rotate(18deg); }
+}
+
+@keyframes checklist-check-pop {
+  0% { transform: scale(.85); }
+  72% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* Pointer light keeps panels responsive without changing their layout or content. */
+.trip-brief,
+.plan-form,
+.gear-personal,
+.catalog-search-hero,
+.progress-panel,
+.checklist-group {
+  position: relative;
+  isolation: isolate;
+  box-shadow: 0 2px 8px #18243108, 0 14px 34px #18243108;
+  transition: box-shadow 240ms ease, border-color 240ms ease;
+}
+.trip-brief::before,
+.plan-form::before,
+.gear-personal::before,
+.catalog-search-hero::before,
+.progress-panel::before,
+.checklist-group::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 50%), #8aa9c21c, transparent 72%);
+  transition: opacity 220ms ease;
+}
+.trip-brief > *,
+.plan-form > *,
+.gear-personal > *,
+.catalog-search-hero > *,
+.progress-panel > *,
+.checklist-group > * { position: relative; z-index: 1; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .trip-brief:hover,
+  .plan-form:hover,
+  .gear-personal:hover,
+  .catalog-search-hero:hover,
+  .progress-panel:hover,
+  .checklist-group:hover {
+    border-color: #b5c5d2;
+    box-shadow: 0 5px 14px #1824310b, 0 20px 46px #18243112;
+  }
+  .trip-brief:hover::before,
+  .plan-form:hover::before,
+  .gear-personal:hover::before,
+  .catalog-search-hero:hover::before,
+  .progress-panel:hover::before,
+  .checklist-group:hover::before { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trip-brief, .plan-form, .gear-personal, .catalog-search-hero, .progress-panel, .checklist-group,
+  .trip-brief::before, .plan-form::before, .gear-personal::before, .catalog-search-hero::before,
+  .progress-panel::before, .checklist-group::before { transition: none; }
+}
+
+/* A stronger trail mood for the main journey: clear hierarchy, deeper contrast, and a visible action. */
+body {
+  background:
+    radial-gradient(ellipse at 8% 8%, #dce8ee 0, transparent 34rem),
+    radial-gradient(ellipse at 94% 38%, #e8eadf 0, transparent 30rem),
+    #f5f7fa;
+}
+main { position: relative; }
+.intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(28px, 5vw, 58px) 22px;
+  margin: 0 0 26px;
+  border: 1px solid #d9e2e8;
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse at 78% 115%, #91a98d48, transparent 45%),
+    linear-gradient(118deg, #fff 0%, #f1f5f6 55%, #e7edf0 100%);
+  box-shadow: 0 12px 30px #1824310b, 0 34px 80px #1824310a;
+}
+.intro::before {
+  content: "";
+  position: absolute;
+  inset: auto -5% -90% 42%;
+  z-index: -1;
+  height: 160%;
+  border: 1px solid #526d7430;
+  border-radius: 50%;
+  box-shadow: 0 0 0 28px #526d7408, 0 0 0 58px #526d7406;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+.intro .eyebrow { color: #4d6b68; }
+.intro h1 { font-size: clamp(29px, 4vw, 48px); line-height: 1.35; letter-spacing: .025em; }
+.intro h1 span { color: #526f69; font-weight: 550; }
+.intro .description { max-width: 680px; margin: 10px auto 0; line-height: 1.9; }
+.intro #workbench-start {
+  position: relative;
+  min-height: 58px;
+  margin-top: 23px;
+  padding: 15px 24px;
+  border-radius: 12px;
+  background: linear-gradient(125deg, #263d4f, #385c68 58%, #466b69);
+  box-shadow: 0 8px 20px #24394b30, inset 0 1px #ffffff3b;
+  font-weight: 650;
+  letter-spacing: .02em;
+}
+.intro #workbench-start:enabled:hover { background: linear-gradient(125deg, #1f3546, #416a75 58%, #527a74); }
+.explore-grid { gap: clamp(20px, 3vw, 34px); }
+.viewer-shell { box-shadow: 0 12px 36px #24394b15, 0 2px 8px #24394b0b; }
+.trip-brief { border-color: #d2dfe4; background: linear-gradient(145deg, #fff 0%, #edf3f3 70%, #e4ece8 100%); }
+
+.trail-heading {
+  min-height: clamp(188px, 21vw, 250px);
+  border: 1px solid #506575;
+  box-shadow: 0 18px 42px #18243124, inset 0 1px #ffffff24;
+}
+.trail-heading::before {
+  background:
+    linear-gradient(90deg, #101d2af5 0%, #152634d9 38%, #162a3a4d 76%, #162a3a12 100%),
+    linear-gradient(0deg, #14233166, transparent 55%);
+}
+.trail-heading h1 { font-size: clamp(32px, 4.5vw, 52px); text-shadow: 0 3px 22px #0b1724a6; }
+.trail-heading .description { color: #f0f4f4; font-size: 15px; text-shadow: 0 2px 12px #0b172488; }
+.plan-form { border-color: #d0dce3; box-shadow: 0 16px 42px #24394b13, 0 2px 8px #24394b08; }
+.plan-form .trip-intent label { font-size: 18px; letter-spacing: .01em; }
+.trip-intent textarea { min-height: 108px; border-color: #b8c8d2; background: #fcfdfe; box-shadow: inset 0 1px 3px #1824310a; }
+.trip-intent textarea:focus-visible { border-color: #587b85; box-shadow: 0 0 0 4px #739ba127, inset 0 1px 3px #1824310a; }
+#plan-form .trip-intent .button {
+  position: relative;
+  overflow: hidden;
+  min-height: 54px;
+  padding: 14px 22px;
+  border-radius: 11px;
+  background: linear-gradient(120deg, #223c4e, #355f67 70%, #466b62);
+  box-shadow: 0 7px 18px #263f4c35, inset 0 1px #ffffff30;
+  font-weight: 650;
+  letter-spacing: .025em;
+}
+#plan-form .trip-intent .button::after {
+  content: "";
+  position: absolute;
+  inset: -60% auto -60% -36%;
+  width: 24%;
+  background: linear-gradient(90deg, transparent, #ffffff70, transparent);
+  transform: translateX(-160%) rotate(18deg);
+  pointer-events: none;
+}
+#plan-form .trip-intent .button:hover:enabled { transform: translateY(-3px); box-shadow: 0 12px 24px #263f4c3d, inset 0 1px #ffffff42; }
+#plan-form .trip-intent .button:hover:enabled::after { animation: trail-button-sheen 780ms cubic-bezier(.2, .72, .22, 1); }
+#plan-form .trip-intent .button span { transition: transform 220ms cubic-bezier(.2, .8, .25, 1); }
+#plan-form .trip-intent .button:hover:enabled span { transform: translateX(5px); }
+.rule-preview {
+  border: 1px solid #d2e0e4;
+  border-left: 4px solid #65867a;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #eef4f2, #e8eff3 70%, #edf0e7);
+  box-shadow: inset 0 1px #ffffffc7, 0 8px 20px #24394b0a;
+}
+.rule-preview-heading { justify-content: flex-start; }
+#rule-count { color: #263f4c; font-size: 19px; }
+#rule-help-toggle { box-shadow: 0 2px 7px #24394b15; }
+.gear-personal, .catalog-search-hero { box-shadow: 0 14px 34px #24394b11; }
+.gear-personal-metrics strong { color: #385f60; font-size: 38px; }
+.catalog-search-row input:focus-visible { box-shadow: 0 0 0 5px #739ba124; }
+.checklist-group { border-color: #d6e0e4; }
+.check-row:has(input:checked) { background: #e9f1ec; box-shadow: inset 3px 0 #708d78; }
+.navigation-indicator { box-shadow: inset 0 -2px #ece3cc, 0 6px 18px #0c172225; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .intro { animation: trail-hero-arrive 820ms cubic-bezier(.18, .72, .22, 1) both; }
+  .intro::before { animation: trail-contour-drift 18s ease-in-out infinite alternate; }
+  .intro #workbench-start:enabled { animation: trail-cta-arrive 720ms 240ms cubic-bezier(.18, .72, .22, 1) both; }
+  .trail-heading::after {
+    content: "";
+    position: absolute;
+    inset: -70% auto -70% -28%;
+    width: 18%;
+    background: linear-gradient(90deg, transparent, #f4f6ed3b, transparent);
+    transform: translateX(-180%) rotate(17deg);
+    pointer-events: none;
+    animation: trail-banner-sweep 1400ms 360ms cubic-bezier(.2, .72, .22, 1) both;
+  }
+  #plan-form .trip-intent .button:enabled { animation: trail-cta-arrive 740ms 280ms cubic-bezier(.18, .72, .22, 1) both; }
+  .gear-card:hover, .official-variant:hover { transform: translateY(-6px) scale(1.018); box-shadow: 0 18px 36px #263e3422; }
+  .checklist-group:hover { transform: translateY(-3px); }
+}
+@media (max-width: 600px) {
+  .intro { padding: 30px 18px 28px; border-radius: 16px; }
+  .intro h1 { font-size: 29px; }
+  .intro .description { font-size: 12px; }
+  .trail-heading { min-height: 178px; }
+  .trail-heading .description { font-size: 13px; }
+  #plan-form .trip-intent .button { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro, .intro::before, .intro #workbench-start, .trail-heading::after, #plan-form .trip-intent .button { animation: none !important; }
+  #plan-form .trip-intent .button::after { display: none; }
+}
+
+@keyframes trail-hero-arrive {
+  from { opacity: 0; transform: translateY(32px) scale(.975); filter: blur(5px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes trail-cta-arrive {
+  from { opacity: 0; transform: translateY(14px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes trail-contour-drift {
+  from { transform: rotate(-12deg) translateX(-2%); }
+  to { transform: rotate(-8deg) translateX(2%); }
+}
+@keyframes trail-banner-sweep {
+  0% { opacity: 0; transform: translateX(-180%) rotate(17deg); }
+  25% { opacity: .8; }
+  100% { opacity: 0; transform: translateX(760%) rotate(17deg); }
+}
+@keyframes trail-button-sheen {
+  0% { opacity: 0; transform: translateX(-160%) rotate(18deg); }
+  24% { opacity: .8; }
+  100% { opacity: 0; transform: translateX(720%) rotate(18deg); }
+}
+
+/* A quiet, continuous showroom treatment for the equipment library. */
+#view-library .trail-heading {
+  border-color: #647d89;
+  box-shadow: 0 22px 56px #18243135, inset 0 1px #ffffff38;
+}
+#view-library .gear-personal {
+  border-color: #c6d3d2;
+  background:
+    radial-gradient(ellipse at 93% 0%, #b8cabb72, transparent 42%),
+    linear-gradient(118deg, #fff 0%, #edf3f2 55%, #e2ebe7 100%);
+}
+#view-library .gear-view-switch button[aria-pressed="true"] {
+  background: linear-gradient(125deg, #24394b, #385d65 68%, #526e62);
+  box-shadow: 0 6px 16px #24394b2b, inset 0 1px #ffffff45;
+}
+#view-library .catalog-search-hero {
+  border-color: #ccd8d8;
+  background:
+    radial-gradient(ellipse at 90% 10%, #b7c9b264, transparent 36%),
+    linear-gradient(118deg, #f8fbfc, #e8eff0 58%, #f3f0e7);
+  box-shadow: 0 18px 42px #24394b15, inset 0 1px #ffffffd9;
+}
+#view-library .catalog-search-hero h2 { letter-spacing: .015em; }
+#view-library .catalog-search-row input { transition: box-shadow 260ms ease, border-color 260ms ease, transform 260ms ease; }
+#view-library .catalog-search-row input:focus {
+  border-color: #577c7a;
+  box-shadow: 0 0 0 5px #739b9126, 0 9px 24px #24394b16;
+  transform: translateY(-1px);
+}
+#view-library .catalog-search-examples button { transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease; }
+#view-library .catalog-search-examples button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px #24394b19; background: #f2f6f1; }
+#view-library #product-catalog { border-color: #d0d9dc; box-shadow: 0 16px 40px #24394b10, inset 0 1px #ffffff; }
+#view-library .catalog-filters select:focus-visible,
+#view-library .library-toolbar select:focus-visible {
+  border-color: #577c7a;
+  box-shadow: 0 0 0 4px #739b9126, 0 7px 18px #24394b12;
+  transform: translateY(-1px);
+}
+#view-library #official-product-library > .official-variant,
+#view-library #gear-grid > .gear-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: #d2dcda;
+  background: linear-gradient(145deg, #fff 0%, #fbfcfa 56%, #f0f4ef 100%);
+  box-shadow: 0 7px 20px #24394b0b, inset 0 1px #ffffff;
+  transform-style: preserve-3d;
+  transition: transform 360ms cubic-bezier(.2, .8, .2, 1), box-shadow 360ms ease, border-color 360ms ease;
+}
+#view-library #official-product-library > .official-variant::before,
+#view-library #gear-grid > .gear-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(125deg, #829b8952, #ffffff 28%, #a9c1b355 54%, #ffffff 76%, #89999545);
+  background-size: 240% 240%;
+  opacity: .48;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+#view-library .official-variant .catalog-category-label {
+  background: linear-gradient(110deg, #e7efeb, #edf1ef 42%, #f6f1e5 74%, #e5ece8);
+  background-size: 220% 100%;
+}
+#view-library .official-variant h3,
+#view-library .gear-card h2 { transition: color 220ms ease, transform 300ms ease; }
+#view-library .official-variant:hover,
+#view-library .official-variant:focus-within,
+#view-library .gear-card:hover,
+#view-library .gear-card:focus-within {
+  z-index: 2;
+  transform: translateY(-8px) rotateX(1deg) scale(1.018);
+  border-color: #91aaa0;
+  box-shadow: 0 24px 44px #24394b21, 0 0 0 1px #93aa9a5c, inset 0 1px #fff;
+}
+#view-library .official-variant:hover h3,
+#view-library .gear-card:hover h2 { color: #3e675d; transform: translateX(2px); }
+#view-library .official-variant.is-selected {
+  border-color: #6e9387;
+  box-shadow: 0 0 0 2px #6e9387, 0 14px 28px #263e3421;
+}
+#view-library .official-variant [data-catalog-action],
+#view-library .gear-view-switch button { transition: transform 220ms ease, box-shadow 220ms ease, background-color 220ms ease; }
+#view-library .official-variant [data-catalog-action]:hover,
+#view-library .gear-view-switch button:hover { transform: translateY(-2px); box-shadow: 0 7px 16px #24394b1c; }
+
+@media (prefers-reduced-motion: no-preference) {
+  #view-library .trail-heading-image { animation: library-mountain-drift 28s ease-in-out infinite alternate; }
+  #view-library .trail-heading::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    inset: -70% auto -70% -28%;
+    width: 22%;
+    background: linear-gradient(90deg, transparent, #eff4e85e, transparent);
+    transform: translateX(-180%) rotate(17deg);
+    pointer-events: none;
+    animation: library-banner-glint 10s 2s ease-in-out infinite;
+  }
+  #view-library .gear-personal { animation: library-panel-breathe 8s ease-in-out infinite; }
+  #view-library .gear-personal-metrics strong { text-shadow: 0 5px 20px #385f6026; animation: library-metric-glow 5s ease-in-out infinite; }
+  #view-library .catalog-search-hero::after { animation-duration: 7.5s; animation-delay: 1.8s; animation-iteration-count: infinite; }
+  #view-library #official-product-library > .official-variant::before,
+  #view-library #gear-grid > .gear-card::before { animation: library-card-edge 10s linear infinite; }
+  #view-library #official-product-library > .official-variant:nth-child(3n + 2)::before,
+  #view-library #gear-grid > .gear-card:nth-child(3n + 2)::before { animation-delay: -3.3s; }
+  #view-library #official-product-library > .official-variant:nth-child(3n)::before,
+  #view-library #gear-grid > .gear-card:nth-child(3n)::before { animation-delay: -6.6s; }
+  #view-library .official-variant .catalog-category-label { animation: library-label-sheen 12s ease-in-out infinite; }
+  #view-library .gear-view-switch button[aria-pressed="true"] { animation: library-active-tab 4.8s ease-in-out infinite; }
+}
+@keyframes library-mountain-drift { from { transform: scale(1.06) translate3d(-.5%, 0, 0); } to { transform: scale(1.13) translate3d(.8%, -1%, 0); } }
+@keyframes library-banner-glint { 0%, 70%, 100% { opacity: 0; transform: translateX(-180%) rotate(17deg); } 76% { opacity: .72; } 91% { opacity: 0; transform: translateX(760%) rotate(17deg); } }
+@keyframes library-panel-breathe { 0%, 100% { box-shadow: 0 14px 34px #24394b11; } 50% { box-shadow: 0 20px 46px #385f601b; } }
+@keyframes library-metric-glow { 0%, 100% { text-shadow: 0 3px 12px #385f6010; } 50% { text-shadow: 0 5px 22px #385f603b; } }
+@keyframes library-card-edge { 0% { background-position: 0% 50%; opacity: .32; } 50% { background-position: 100% 50%; opacity: .7; } 100% { background-position: 0% 50%; opacity: .32; } }
+@keyframes library-label-sheen { 0%, 72%, 100% { background-position: 0% 50%; } 88% { background-position: 100% 50%; } }
+@keyframes library-active-tab { 0%, 100% { box-shadow: 0 6px 16px #24394b24, inset 0 1px #ffffff38; } 50% { box-shadow: 0 9px 23px #426b633c, inset 0 1px #ffffff58; } }
+@media (prefers-reduced-motion: reduce) {
+  #view-library .trail-heading-image { animation: none; }
+  #view-library .trail-heading::after,
+  #view-library .gear-personal,
+  #view-library .gear-personal-metrics strong,
+  #view-library .catalog-search-hero::after,
+  #view-library #official-product-library > .official-variant::before,
+  #view-library #gear-grid > .gear-card::before,
+  #view-library .official-variant .catalog-category-label,
+  #view-library .gear-view-switch button[aria-pressed="true"] { animation: none !important; }
+  #view-library #official-product-library > .official-variant,
+  #view-library #gear-grid > .gear-card,
+  #view-library .catalog-search-row input,
+  #view-library .catalog-search-examples button,
+  #view-library .official-variant h3,
+  #view-library .gear-card h2,
+  #view-library .official-variant [data-catalog-action],
+  #view-library .gear-view-switch button { transition: none !important; }
+}

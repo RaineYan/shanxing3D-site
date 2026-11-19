@@ -1,0 +1,251 @@
+:root {
+  color-scheme: dark;
+  font-family: "Microsoft YaHei", system-ui, sans-serif;
+  color: #f5f6f4;
+  background: #151e26;
+  --accent: #ece3cc;
+  --gutter: clamp(24px, 6vw, 104px);
+}
+* { box-sizing: border-box; }
+body, p, h1 { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+[hidden] { display: none !important; }
+
+#scene { position: relative; min-height: 100svh; display: grid; overflow: hidden; isolation: isolate; }
+#world, .poster, .veil { position: absolute; inset: 0; width: 100%; height: 100%; }
+.poster { object-fit: cover; z-index: -3; }
+#world { opacity: 0; z-index: -2; touch-action: none; }
+.ready #world { opacity: 1; }
+.veil {
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, #10192375, transparent 24%, transparent 30%, #0c151e78 60%, #0a131de8 100%);
+}
+.layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: clamp(20px, 4vh, 48px);
+  width: 100%;
+  max-width: 1680px;
+  margin-inline: auto;
+  padding: clamp(18px, 3vh, 36px) var(--gutter) max(14px, env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+.layout :is(a, button) { pointer-events: auto; }
+.brand { display: inline-block; vertical-align: top; }
+.brand-logo { display: block; width: clamp(105px, 9vw, 139px); height: auto; }
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: end;
+  align-self: end;
+  gap: 24px 64px;
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #f0ebe0;
+  font: 600 10px/1.4 system-ui, sans-serif;
+  letter-spacing: .19em;
+}
+.eyebrow span { width: 22px; height: 1px; background: var(--accent); }
+h1 {
+  margin-top: clamp(12px, 2vh, 22px);
+  font: 600 clamp(54px, 7.4vw, 116px)/1.1 "Songti SC", SimSun, serif;
+  letter-spacing: .035em;
+  text-shadow: 0 2px 24px #10192340;
+}
+h1 em { color: var(--accent); font-style: normal; }
+.hero-detail { padding-bottom: 4px; }
+.description { color: #e1e8eb; font-size: clamp(14px, 1.3vw, 17px); line-height: 1.85; letter-spacing: .04em; }
+.brand-inline { color: var(--accent); font-weight: 800; font-size: 1.13em; }
+.primary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  min-height: 54px;
+  margin-top: 20px;
+  padding: 12px 17px;
+  background: var(--accent);
+  color: #18242d;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.primary:hover { background: #fff7e8; }
+.primary span { font: 400 21px/1 system-ui, sans-serif; }
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #e5edf438;
+  color: #cbd6df;
+  font-size: 10px;
+  letter-spacing: .07em;
+}
+.controls { display: flex; align-items: center; }
+.controls button { width: 44px; min-height: 44px; border-radius: 4px; font-size: 15px; }
+.controls button:hover { background: #f4f5f51c; }
+.controls button:disabled { opacity: .45; cursor: default; }
+.capture .layout { display: none; }
+
+@media (max-width: 720px) {
+  .hero { grid-template-columns: 1fr; gap: 17px; }
+  h1 { font-size: clamp(41px, 11vw, 72px); }
+  .hero-detail { padding: 0; }
+  .primary { width: max-content; margin-top: 14px; min-height: 48px; }
+  .eyebrow { font-size: 9px; letter-spacing: .14em; }
+  .veil { background: linear-gradient(180deg, #10192373, transparent 22%, #0c151e38 37%, #0a131ded 100%); }
+}
+@media (max-height: 520px) {
+  .layout { gap: 12px; padding-top: 10px; padding-bottom: 4px; }
+  .brand-logo { width: 94px; }
+  h1 { font-size: clamp(36px, 8vh, 54px); margin-top: 8px; }
+  .primary { margin-top: 10px; min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #world { transition: opacity 1.4s cubic-bezier(.2, .72, .22, 1); }
+  body:not(.capture) .brand { animation: experience-arrive 820ms cubic-bezier(.2, .72, .22, 1) 100ms both; }
+  body:not(.capture) .eyebrow { animation: experience-arrive 820ms cubic-bezier(.2, .72, .22, 1) 250ms both; }
+  body:not(.capture) h1 { animation: experience-arrive 980ms cubic-bezier(.2, .72, .22, 1) 390ms both; }
+  body:not(.capture) .description { animation: experience-arrive 820ms cubic-bezier(.2, .72, .22, 1) 630ms both; }
+  body:not(.capture) .primary {
+    position: relative; isolation: isolate; overflow: hidden;
+    animation: experience-arrive 820ms cubic-bezier(.2, .72, .22, 1) 760ms both;
+    transition: transform 180ms cubic-bezier(.2, .7, .25, 1), background-color 180ms ease;
+  }
+  body:not(.capture) .primary::after {
+    content: ""; position: absolute; z-index: 0; inset: -45% auto -45% -25%; width: 22%;
+    background: linear-gradient(90deg, transparent, #ffffffa8, transparent);
+    transform: translateX(-180%) rotate(18deg); pointer-events: none;
+  }
+  body:not(.capture) .primary:hover::after { animation: experience-sheen 760ms cubic-bezier(.2, .72, .22, 1); }
+  body:not(.capture) .primary > * { position: relative; z-index: 1; }
+  body:not(.capture) .primary > span { transition: transform 200ms cubic-bezier(.2, .8, .25, 1); }
+  body:not(.capture) .primary:hover > span { transform: translate(2px, -2px); }
+  body:not(.capture) .primary:active { transform: translateY(1px) scale(.985); }
+  body:not(.capture) footer { animation: experience-arrive 820ms cubic-bezier(.2, .72, .22, 1) 900ms both; }
+  body:not(.capture) .controls button { transition: transform 180ms cubic-bezier(.2, .7, .25, 1), background-color 180ms ease; }
+  body:not(.capture) .controls button:hover:enabled { transform: translateY(-2px); }
+  body:not(.capture) .controls button:active:enabled { transform: scale(.94); }
+  @view-transition { navigation: auto; }
+  body:not(.ready) .poster, body.ready #world { view-transition-name: trail-image; }
+  ::view-transition { pointer-events: none; }
+  ::view-transition-group(trail-image) { animation-duration: 300ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #world, body .brand, body .eyebrow, body h1, body .description, body .primary, body footer, body .controls button {
+    animation: none !important; transition: none !important; transform: none !important; opacity: 1;
+  }
+  body .primary::after { animation: none !important; }
+}
+
+@keyframes experience-arrive {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes experience-sheen {
+  0% { opacity: 0; transform: translateX(-180%) rotate(18deg); }
+  28% { opacity: .6; }
+  100% { opacity: 0; transform: translateX(690%) rotate(18deg); }
+}
+
+/* Give the mountain entry a clearer focal point while keeping the landscape visible. */
+@media (prefers-reduced-motion: no-preference) {
+  body:not(.capture) .hero { position: relative; isolation: isolate; }
+  body:not(.capture) .hero::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    left: -8vw;
+    bottom: -7vh;
+    width: min(78vw, 1120px);
+    height: min(64vh, 580px);
+    background: radial-gradient(ellipse at 42% 64%, #dce9f21c, #c9d9e00d 44%, transparent 72%);
+    pointer-events: none;
+  }
+  body:not(.capture) .eyebrow span {
+    height: 2px;
+    background: linear-gradient(90deg, #fff8e8, var(--accent));
+    box-shadow: 0 0 14px #ece3ccaa;
+    animation: experience-marker-pulse 2.2s ease-in-out 1.1s 2;
+  }
+  body:not(.capture) h1 em {
+    position: relative;
+    display: inline-block;
+    text-shadow: 0 0 36px #ece3cc45;
+    animation: experience-highlight 3.2s ease-in-out 1.25s 2 alternate both;
+  }
+  body:not(.capture) .primary {
+    overflow: visible;
+    min-width: 258px;
+    min-height: 62px;
+    padding: 15px 21px;
+    border-color: #fff3d78c;
+    border-radius: 6px;
+    background: linear-gradient(120deg, #f3e9d0, #e5d7b6 62%, #f4e8cb);
+    box-shadow: 0 12px 30px #090f1670, 0 0 0 1px #f5e9cf3d, 0 0 32px #ece3cc30, inset 0 1px #fffaf0;
+  }
+  body:not(.capture) .primary:hover {
+    background: linear-gradient(120deg, #fff8e8, #f0e3c4 62%, #fff5df);
+    box-shadow: 0 16px 38px #090f1678, 0 0 0 1px #fff5de9e, 0 0 42px #ece3cc5c, inset 0 1px #fff;
+  }
+  body:not(.capture) .primary::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    inset: -5px;
+    border: 1px solid #f2e6c789;
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+    animation: experience-cta-ring 1.15s ease-out 1.55s 2;
+  }
+  body:not(.capture) .primary > span { font-size: 24px; }
+}
+
+@media (max-width: 720px) and (prefers-reduced-motion: no-preference) {
+  body:not(.capture) .hero::before { left: -20vw; bottom: -3vh; width: 120vw; height: 42vh; }
+  body:not(.capture) .primary { min-width: min(258px, 100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body .hero::before { content: none; }
+  body .eyebrow span { box-shadow: none; }
+  body h1 em { text-shadow: 0 2px 24px #10192340; }
+  body .primary {
+    min-width: 258px;
+    min-height: 62px;
+    padding: 15px 21px;
+    border-color: #fff3d78c;
+    border-radius: 6px;
+    background: linear-gradient(120deg, #f3e9d0, #e5d7b6 62%, #f4e8cb);
+    box-shadow: 0 12px 30px #090f1670, 0 0 0 1px #f5e9cf3d, 0 0 32px #ece3cc30, inset 0 1px #fffaf0;
+  }
+  body .primary::before { content: none; }
+}
+
+@keyframes experience-marker-pulse {
+  0%, 100% { opacity: .8; transform: scaleX(1); }
+  50% { opacity: 1; transform: scaleX(1.55); }
+}
+
+@keyframes experience-highlight {
+  from { text-shadow: 0 0 20px #ece3cc24; }
+  to { text-shadow: 0 0 42px #ece3cc9c, 0 3px 26px #ece3cc45; }
+}
+
+@keyframes experience-cta-ring {
+  0% { opacity: .7; transform: scale(.98); }
+  100% { opacity: 0; transform: scale(1.065); }
+}

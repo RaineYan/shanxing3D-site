@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>山行 · 越过雪线</title>
+  <meta name="description" content="山行徒步装备规划。">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">{"imports":{"three":"../vendor/three/three.module.js"}}</script>
+</head>
+<body>
+  <main id="scene" data-state="loading">
+    <img class="poster" src="assets/poster.png" alt="">
+    <canvas id="world" aria-label="连续向前行走的动态风雪山境"></canvas>
+    <div class="veil" aria-hidden="true"></div>
+    <div class="layout">
+      <header><a class="brand" href="./index.html" aria-label="山行 · 为山野人行前装包"><img class="brand-logo" src="assets/brand/shanxing-logo-light.svg" alt="" width="870" height="600"></a></header>
+      <section class="hero" aria-labelledby="title">
+        <div class="hero-lead">
+          <p class="eyebrow"><span aria-hidden="true"></span> EVERY JOURNEY BEGINS WITH A STEP</p>
+          <h1 id="title">越过雪线。<br>走向<em>远方。</em></h1>
+        </div>
+        <div class="hero-detail">
+          <p class="description">出发的向往，交给山野。<br>行前的准备，交给<strong class="brand-inline">山行</strong>。</p>
+          <a class="primary" href="../index.html#plan">开启我的行程 <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+      <footer>
+        <span id="status" role="status">正在载入山境；可直接进入行程 →</span>
+        <div class="controls">
+          <button id="skip" hidden>跳过开场 ↗</button>
+          <button id="replay" hidden aria-label="重新行走" title="重新行走">↺</button>
+          <button id="pause" aria-pressed="false" aria-label="暂停动态" title="暂停动态">Ⅱ</button>
+          <button id="quality" aria-label="画质：自动" title="画质：自动">◉</button>
+        </div>
+      </footer>
+    </div>
+    <div hidden><span id="caption"></span><small id="phase"></small><i id="bar"></i></div>
+  </main>
+  <script type="module" src="continuous-main.mjs"></script>
+</body>
+</html>
