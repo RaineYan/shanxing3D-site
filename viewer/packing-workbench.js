@@ -30,6 +30,7 @@ const START = { positionM: { x: 0.28, y: 0, z: 0 }, rotationRad: { x: 0, y: 0, z
 // Uses the app's scene/canvas/loop. Packing plans have isolated storage; planner state is read-only.
 export function createPackingWorkbench({ scene, camera, renderer, orbit, backpack, backpackFrame = backpack, packingSpace, loadGear, invalidate, enterView, leaveView,backpackProfile=BACKPACK_PROFILE }) {
   const GEAR_ASSETS=[...BASE_ASSETS];
+  const DEMO_SUITE_IDS=BASE_ASSETS.map(asset=>asset.id);
   const mountProfile=backpackProfile,mountAnchors=mountProfile.attachments;
   const dialog = document.querySelector('#packing-workbench');
   const shell = document.querySelector('.viewer-shell');
@@ -146,6 +147,21 @@ export function createPackingWorkbench({ scene, camera, renderer, orbit, backpac
       q('product-note').textContent=`从清单添加${added.length}类已准备装备（演示型号）；已有类别不重复添加。${fresh.length-added.length?`${fresh.length-added.length}类添加失败，可重试。`:''}其余清单物品暂无模型；不会自动勾选准备状态。`;
       if(!added.length)loadFeedback('没有新增可装载装备；已有类别保持不变。');
     }catch(e){q('product-note').textContent=e.message;loadFeedback('清单未能导入，请先生成并勾选已准备物品。','warning');}finally{planOperation=false;sync();}
+    if(added.length&&active)await autoLoadRecords(added);
+  };
+  q('demo-suite').onclick=async()=>{
+    if(!active||loading||restoring||planOperation||['playing','paused'].includes(playback?.status.state))return;
+    clearTimeout(assistTimer);
+    const ids=DEMO_SUITE_IDS.filter(id=>![...instances.values()].some(r=>r.equipmentId===id));
+    if(!ids.length){loadFeedback('整套装备已经在场景中，可点击动效控制里的“重播”。');return;}
+    if(instances.size+ids.length>100){loadFeedback('场景装备过多，请先移除不需要的实例。','warning');return;}
+    const added=[];planOperation=true;sync();
+    try{
+      for(const id of ids){q('equipment').value=id;updateProductOptions();q('product').value='';const record=await add(id);if(record)added.push(record);}
+      q('product-note').textContent=`整套演示已带入${added.length}件装备；每件会依次经过抬起、移至包口和放入背包的动画。`;
+      if(!added.length)loadFeedback('没有新增可装载装备；已有装备保持不变。');
+    }catch(error){q('product-note').textContent=error.message||'整套演示添加失败。';loadFeedback('整套装备未能全部加入，请重试。','warning');}
+    finally{planOperation=false;sync();}
     if(added.length&&active)await autoLoadRecords(added);
   };
   const raycaster = new THREE.Raycaster();
@@ -275,6 +291,7 @@ export function createPackingWorkbench({ scene, camera, renderer, orbit, backpac
     q('equipment').disabled = loading || restoring;
     q('product').disabled = loading || restoring;
     q('import-checklist').disabled=loading||restoring||planOperation;
+    q('demo-suite').disabled=loading||restoring||planOperation;
     q('back-to-plan').disabled=loading||restoring||planOperation;
     for(const id of ['save-plan','load-plan','load-history','delete-history','refresh-history','history'])q(id).disabled=loading||restoring||planOperation;
     q('close').disabled=planOperation;
@@ -334,7 +351,7 @@ export function createPackingWorkbench({ scene, camera, renderer, orbit, backpac
     const alignment = alignmentTools?.update();
     q('alignment-readout').hidden = !q('show-alignment').checked;
     if (alignment && q('show-alignment').checked) q('alignment-readout').textContent = JSON.stringify(alignment, null, 2);
-    if(planOperation){for(const id of ['add','auto-add','equipment','product','instances','select','translate','rotate','confirm','cancel','reset','remove','placement-type','anchor','save-plan','load-plan','auto-pack','auto-entry','undo-auto'])q(id).disabled=true;for(const f of fields)f.disabled=true;}
+    if(planOperation){for(const id of ['add','auto-add','demo-suite','equipment','product','instances','select','translate','rotate','confirm','cancel','reset','remove','placement-type','anchor','save-plan','load-plan','auto-pack','auto-entry','undo-auto'])q(id).disabled=true;for(const f of fields)f.disabled=true;}
     if(playback)playbackState(playback.status);
     updatePending();
     invalidate();
