@@ -16,7 +16,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
 #scene { position: relative; min-height: 100svh; display: grid; overflow: hidden; isolation: isolate; }
 #world, .poster, .veil { position: absolute; inset: 0; width: 100%; height: 100%; }
 .poster { object-fit: cover; z-index: -3; }
-#world { opacity: 0; z-index: -2; touch-action: none; }
+#world { opacity: 0; z-index: -2; touch-action: none; cursor: grab; }
+#world.is-dragging { cursor: grabbing; }
 .ready #world { opacity: 1; }
 .veil {
   z-index: -1;

@@ -6,7 +6,7 @@ import {createContinuousTerrain,center,ground,LENGTH} from './continuous-terrain
 const $=id=>document.getElementById(id),root=$('scene'),canvas=$('world'),reduce=matchMedia('(prefers-reduced-motion:reduce)'),params=new URLSearchParams(location.search);
 const fixed=params.has('frame')?Math.max(0,Math.min(1,Number(params.get('frame'))||0)):null;
 if(params.get('capture')==='poster')document.body.classList.add('capture');
-let renderer,scene,camera,terrain,weather,model,route,ready=false,paused=reduce.matches||fixed!==null,progress=fixed??(reduce.matches?1:0),last=0,raf=0,quality='auto',time=0,loops=0;
+let renderer,scene,camera,terrain,weather,model,route,ready=false,paused=reduce.matches||fixed!==null,progress=fixed??(reduce.matches?1:0),last=0,raf=0,quality='auto',time=0,loops=0,dragging=false,pointerX=0,resumeAfterDrag=false;
 let distance=params.has('distance')?Math.max(0,Math.min(100000,Number(params.get('distance'))||0)):(fixed??(reduce.matches?1:0))*20;const travel={value:distance};
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),smooth=t=>{t=clamp(t);return t*t*(3-2*t);};
 function updatePose(){
@@ -27,7 +27,7 @@ function draw(){renderer.render(scene,camera);root.dataset.triangles=String(rend
 function render(){if(!ready)return;weather.update(0,camera,time);draw();}
 function stop(){if(raf)cancelAnimationFrame(raf);raf=0;last=0;}
 function schedule(){if(ready&&!paused&&!document.hidden&&!raf)raf=requestAnimationFrame(tick);}
-function tick(ms){raf=0;if(paused||document.hidden)return;const dt=last?Math.max(0,(ms-last)/1000):0;last=ms;time+=dt;distance+=Math.min(dt,.08)*1.25;updatePose();weather.update(Math.min(dt,.1),camera,time);draw();schedule();}
+function tick(ms){raf=0;if(paused||document.hidden)return;const dt=last?Math.max(0,(ms-last)/1000):0;last=ms;time+=dt;if(!dragging)distance+=Math.min(dt,.08)*1.25;updatePose();weather.update(Math.min(dt,.1),camera,time);draw();schedule();}
 function pause(value){paused=value;stop();$('pause').textContent=paused?'▶':'Ⅱ';$('pause').setAttribute('aria-label',paused?'继续动态':'暂停动态');$('pause').title=paused?'继续动态':'暂停动态';$('pause').setAttribute('aria-pressed',String(paused));render();schedule();}
 function resize(){if(!renderer)return;const w=root.clientWidth,h=root.clientHeight,cap=quality==='high'?1700000:quality==='low'?400000:950000;renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6,Math.sqrt(cap/(w*h))));renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w/h<.85?65:58;camera.updateProjectionMatrix();updatePose();render();}
 function staticView(message){stop();ready=false;document.body.classList.add('static');$('status').textContent=message;root.dataset.state='static';document.querySelector('.hero').inert=false;document.querySelector('.hero').setAttribute('aria-hidden','false');for(const id of ['pause','skip','quality'])$(id).disabled=true;}
@@ -42,5 +42,9 @@ async function load(){try{
 }catch(error){console.error(error);staticView('3D 暂不可用 · 可直接进入行程');}}
 $('pause').onclick=()=>pause(!paused);$('skip').onclick=()=>{distance=20;updatePose();render();};$('replay').onclick=()=>{distance=0;time=0;updatePose();pause(false);};$('quality').onclick=()=>{quality=({auto:'low',low:'high',high:'auto'})[quality];$('quality').textContent='◉';$('quality').title='画质：'+({auto:'自动',low:'节能',high:'精细'})[quality];$('quality').setAttribute('aria-label',$('quality').title);resize();};
 canvas.addEventListener('wheel',e=>{if(!ready)return;e.preventDefault();distance=Math.max(0,distance+e.deltaY*.012);updatePose();render();},{passive:false});
+function endDrag(){if(!dragging)return;dragging=false;canvas.classList.remove('is-dragging');if(resumeAfterDrag){resumeAfterDrag=false;schedule();}}
+canvas.addEventListener('pointerdown',e=>{if(!ready||e.pointerType==='mouse'&&e.button!==0)return;dragging=true;pointerX=e.clientX;resumeAfterDrag=!paused;canvas.classList.add('is-dragging');canvas.setPointerCapture?.(e.pointerId);});
+canvas.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-pointerX;pointerX=e.clientX;distance=Math.max(0,distance-dx*.045);updatePose();render();});
+canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);canvas.addEventListener('lostpointercapture',endDrag);window.addEventListener('blur',endDrag);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else schedule();});addEventListener('resize',resize);reduce.addEventListener('change',e=>{if(e.matches)distance=20;pause(e.matches);});canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();staticView('图形连接中断 · 已切换静帧');});
 load();
