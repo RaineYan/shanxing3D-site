@@ -523,6 +523,11 @@ async function init() {
       catch(error){const note=document.querySelector('#workbench-error');note.hidden=false;note.textContent='行程暂时无法交接：'+error.message;return;}
     }
     await workbenchOpen.onclick();
+    if(button.hasAttribute('data-full-suite-demo')&&document.querySelector('#packing-workbench').open){
+      try{await workbench.playDemoSuite();}
+      catch(error){const note=document.querySelector('#wb-product-note');if(note)note.textContent='整套装载演示未能启动：'+error.message;}
+      return;
+    }
     if(trip&&document.querySelector('#packing-workbench').open){
       try{
         const kit=await workbench.beginTrip(trip);

@@ -149,7 +149,7 @@ export function createPackingWorkbench({ scene, camera, renderer, orbit, backpac
     }catch(e){q('product-note').textContent=e.message;loadFeedback('清单未能导入，请先生成并勾选已准备物品。','warning');}finally{planOperation=false;sync();}
     if(added.length&&active)await autoLoadRecords(added);
   };
-  q('demo-suite').onclick=async()=>{
+  const playDemoSuite=async()=>{
     if(!active||loading||restoring||planOperation||['playing','paused'].includes(playback?.status.state))return;
     clearTimeout(assistTimer);
     const ids=DEMO_SUITE_IDS.filter(id=>![...instances.values()].some(r=>r.equipmentId===id));
@@ -164,6 +164,7 @@ export function createPackingWorkbench({ scene, camera, renderer, orbit, backpac
     finally{planOperation=false;sync();}
     if(added.length&&active)await autoLoadRecords(added);
   };
+  q('demo-suite').onclick=playDemoSuite;
   const raycaster = new THREE.Raycaster();
   const fields = [...dialog.querySelectorAll('[data-pose]')];
   const categoryLabels={'sleeping-pad':'睡垫','sleeping-bag':'睡袋',tent:'帐篷',tripod:'三脚架','trekking-poles':'登山杖'};
@@ -766,6 +767,7 @@ export function createPackingWorkbench({ scene, camera, renderer, orbit, backpac
   dialog.addEventListener('cancel', event => { event.preventDefault(); if(planOperation)return;if (editing) cancel(); else close(); });
   return {
     getInstances,
+    async playDemoSuite(){await openReady;return playDemoSuite();},
     async autoArrange(instanceIds=null){
       await openReady;
       if(!active||loading||restoring||planOperation)throw Error('工作台正在处理操作，请稍后重试');

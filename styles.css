@@ -56,9 +56,9 @@ main{max-width:1120px;margin:auto;padding:34px 28px 0}.intro{text-align:center;m
 
 /* Core entry shares the existing palette, without adding a second router/workbench. */
 .navigation #workbench-nav{font:inherit;font-size:13px;font-weight:600;padding:12px;border:1px solid #c1cfdb;border-radius:9px;background:#eaf0f6;color:var(--ink);white-space:nowrap;min-height:44px}
-.intro #workbench-start{margin-top:18px}
+.intro-actions{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}.intro-actions .button{margin:0}.intro-actions #workbench-start{min-width:225px}
 #packing-workbench .wb-action-dock #wb-remove{border:1px solid #d7bfb3;color:#854f43;background:#fff8f1}
-@media(max-width:600px){.navigation{grid-template-columns:repeat(5,minmax(0,1fr))}.navigation a,.navigation #workbench-nav{font-size:11px;padding:10px 2px}.intro #workbench-start{min-width:190px}}
+@media(max-width:600px){.navigation{grid-template-columns:repeat(5,minmax(0,1fr))}.navigation a,.navigation #workbench-nav{font-size:11px;padding:10px 2px}.intro-actions{align-items:stretch}.intro-actions .button{width:100%}.intro-actions #workbench-start{min-width:0}}
 .catalog-filters { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
 .equipment-coverage { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
 .equipment-coverage button { border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; color: var(--ink); background: var(--paper); }
