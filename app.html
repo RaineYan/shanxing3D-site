@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#182431">
+  <title>山行装箱 · 徒步装备规划</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="workspace.css">
+  <script>
+    addEventListener('pagereveal', event => {
+      if (!event.viewTransition || location.hash !== '#plan') return;
+      event.viewTransition.finished.then(() => {
+        if (location.hash !== '#plan') return;
+        const heading = document.querySelector('#view-plan .trail-heading-image');
+        heading.addEventListener('animationend', () => {
+          delete document.documentElement.dataset.trailArrival;
+        }, { once: true });
+        document.documentElement.dataset.trailArrival = '';
+      });
+    });
+    addEventListener('hashchange', () => {
+      delete document.documentElement.dataset.trailArrival;
+    });
+  </script>
+  <script type="importmap">
+    {"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/addons/"}}
+  </script>
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="#explore" aria-label="山行装箱首页"><img class="workspace-logo" src="experience/assets/brand/shanxing-logo-light.svg" alt="" width="870" height="600"><span>山行装箱</span></a>
+    <nav class="navigation" aria-label="主导航">
+      <span class="navigation-indicator" aria-hidden="true"></span>
+      <a href="#explore" aria-current="page">探索</a>
+      <a href="#plan">徒步计划</a>
+      <a href="#library">装备库</a>
+      <a href="#checklist">我的清单<span id="nav-count" hidden></span></a>
+      <button id="workbench-nav" type="button" data-workbench-entry disabled>3D 装包</button>
+    </nav>
+  </header>
+  <main id="main">
+    <p id="storage-notice" class="notice" role="status" hidden></p>
+    <p id="planner-error" class="notice" role="alert" hidden>装备规划程序未能启动，请通过 start-demo.cmd 启动并刷新页面，确认 planner.js 与 gear-data.js 完整。</p>
+    <p id="workbench-error" role="alert" class="notice" hidden></p>
+    <section id="view-explore" class="view" aria-labelledby="explore-title">
+    <section class="intro">
+      <p class="eyebrow">PACK LIGHT. WALK FAR.</p>
+      <h1 id="explore-title" tabindex="-1">出发之前，<span>先在 3D 中装好行囊。</span></h1>
+      <p class="description">选择真实型号、试摆你的装备，再准备这次山行。模拟区域与几何示意不等于真实装载能力。</p>
+      <button id="workbench-start" type="button" class="button primary" data-workbench-entry disabled>开始 3D 装包 →</button>
+    </section>
+    <div class="explore-grid">
+    <div class="model-column">
+    <section class="viewer-shell" aria-label="背包三维预览">
+      <div class="viewer-top"><span class="tag">装备 / 背包</span><span class="source">准备模型</span></div>
+      <div id="viewer" tabindex="0" aria-label="3D 背包。鼠标拖动旋转，滚轮缩放；也可使用下方按钮。">
+        <div class="terrain" aria-hidden="true"></div>
+        <div id="loading" class="loading" role="status"><span class="spinner" aria-hidden="true"></span><span id="loading-text">正在准备背包…</span></div>
+        <div id="error" class="error" role="alert" hidden><strong>背包暂时没能加载</strong><p id="error-detail"></p><button type="button" id="retry">重新加载</button></div>
+      </div>
+      <div class="viewer-bottom">
+        <div><h2>徒步背包 <span>01</span></h2><p id="status" role="status">准备加载模型</p></div>
+        <div class="tools" aria-label="视图控制">
+          <button type="button" id="zoom-in" aria-label="放大模型" disabled>＋</button>
+          <button type="button" id="zoom-out" aria-label="缩小模型" disabled>－</button>
+          <button type="button" id="reset" disabled>重置视角 <span aria-hidden="true">↗</span></button>
+        </div>
+      </div>
+      <div class="space-controls" aria-label="模拟内部空间">
+        <button type="button" id="space-toggle" aria-pressed="false" aria-describedby="space-note" disabled>显示模拟空间</button>
+        <p id="space-note">透视示意 · 尺寸由演示配置加载，非实测，不代表真实容量。</p>
+      </div>
+      <div class="gear-preview-controls">
+        <label for="gear-preview">3D 装备预览</label>
+        <select id="gear-preview" aria-describedby="gear-preview-note" disabled>
+          <option value="backpack">Osprey Kestrel 38 S23 · Lux3D 主背包外观</option>
+        </select>
+        <button id="gear-proxy-toggle" type="button" aria-pressed="false" aria-describedby="gear-preview-note" disabled>显示装备代理</button>
+        <p id="gear-preview-note" role="status">默认展示 Kestrel 38 S23 Lux3D 外观近似；可切换队友上传的背包、急救包、睡袋和水壶外观。未通过校准的模型仅供查看，不进入碰撞、容量或装包计算。</p>
+      </div>
+    </section>
+    <button id="workbench-open" type="button" class="button secondary" disabled>进入 3D 装包工作台 →</button>
+    <div class="instructions"><span><i aria-hidden="true">↔</i> 拖动旋转</span><span><i aria-hidden="true">↕</i> 滚轮缩放</span><span><i aria-hidden="true">◎</i> 触屏双指缩放</span></div>
+    </div>
+    <aside class="trip-brief panel" aria-labelledby="brief-title">
+      <p class="eyebrow">YOUR NEXT TRAIL</p>
+      <h2 id="brief-title">一个计划，一份从容。</h2>
+      <p class="subtle">选择行程，整理装备。把出发前的惦记，一件件打上勾。</p>
+      <div id="explore-summary"></div>
+      <a class="button primary" href="#plan" id="explore-plan-link">开始徒步计划 <span aria-hidden="true">↗</span></a>
+      <a class="text-link" href="#library">逛逛参考装备库 <span aria-hidden="true">→</span></a>
+      <p class="local-note">选择与勾选保存在当前浏览器，本地使用，无需登录。</p>
+    </aside>
+    </div>
+    </section>
+
+    <section id="view-plan" class="view" aria-labelledby="plan-title" hidden>
+      <div class="page-heading trail-heading"><img class="trail-heading-image" src="experience/assets/poster.png" alt="" fetchpriority="low"><h1 id="plan-title" tabindex="-1">徒步计划</h1><p class="description">说说要去哪、走多久，山行据此整理装备清单。</p></div>
+      <div class="plan-grid plan-grid-single">
+        <form id="plan-form" class="panel plan-form">
+          <div class="trip-intent">
+            <label for="trip-intent">打算去哪儿？</label>
+            <textarea id="trip-intent" rows="3" maxlength="500" placeholder="例如：周末去武功山徒步两天，住山屋，途中没有补给。"></textarea>
+            <button type="submit" class="button primary">查看推荐清单 <span aria-hidden="true">→</span></button>
+            <p id="trip-intent-result" class="field-help" role="status"></p>
+          </div>
+          <details class="trip-manual">
+            <summary>手动调整行程</summary>
+            <label class="field-label" for="trip-destination">徒步地点</label>
+            <input id="trip-destination" maxlength="60" placeholder="例如：江西武功山">
+          <fieldset><legend>徒步类型</legend><div class="type-options">
+            <label class="type-option"><input type="radio" name="trip-type" value="day" checked><span><strong>一日徒步</strong><small>当天往返，轻装探索</small></span><span class="type-symbol" aria-hidden="true">☀</span></label>
+            <label class="type-option"><input type="radio" name="trip-type" value="overnight"><span><strong>过夜徒步</strong><small>按户外露营场景准备</small></span><span class="type-symbol" aria-hidden="true">☾</span></label>
+          </div></fieldset>
+          <label class="field-label" for="trip-hours">预计行程总时长</label>
+          <select id="trip-hours" name="trip-hours" aria-describedby="duration-help"></select>
+          <p id="duration-help" class="field-help">包含步行、休息；过夜行程还包含住宿时间。</p>
+          </details>
+          <div id="plan-recommendation" class="rule-preview" tabindex="-1" aria-labelledby="rule-count"><div class="rule-preview-heading"><strong id="rule-count"></strong>
+            <div class="rule-help">
+              <button id="rule-help-toggle" type="button" aria-label="清单如何生成" aria-expanded="false" aria-controls="rule-help-panel">?</button>
+              <div id="rule-help-panel" class="panel rule-guide" role="region" aria-labelledby="rule-help-title" hidden><h2 id="rule-help-title">清单如何生成</h2><ul class="rule-list"><li><strong>每次出行</strong><p>基础携行、补给、衣物，以及导航和应急装备。</p></li><li><strong>一日行程 ≥ 8 小时</strong><p>补充登山杖、备用袜和额外备用食物。</p></li><li><strong>过夜露营</strong><p>增加帐篷、睡袋、防潮垫、餐食与洗漱用品，并准备登山杖和备用袜。</p></li><li><strong>过夜行程 ≥ 36 小时</strong><p>再加入备用衣物、水处理用品与额外食物。</p></li></ul><p class="reference-note">清单仅供参考，请结合路线、天气、补给条件与个人需求核对。过夜若未说明住宿方式，先按露营预设。</p><a class="text-link" href="https://www.nps.gov/articles/10essentials.htm" target="_blank" rel="noreferrer">基础装备参考：NPS Ten Essentials ↗</a></div>
+            </div>
+          </div><p id="rule-explanation"></p><ul id="trip-equipment-highlights" hidden></ul><details class="trip-equipment-details"><summary>查看全部预选装备</summary><ul id="trip-equipment-list"></ul></details></div>
+          <div id="plan-weather-slot"></div>
+          <details class="trip-choice-picker"><summary>调整携带装备</summary><p class="subtle">计划只是建议。可取消不带的物品，或搜索所有类别添加额外物品；更改选择不会自动删除工作台中已有的装备。</p><div id="plan-trip-choices" data-trip-choices></div></details>
+          <p id="plan-message" class="field-help" role="status"></p>
+        </form>
+      </div>
+    </section>
+
+    <section id="view-library" class="view" aria-labelledby="library-title" hidden>
+      <div class="page-heading trail-heading"><img class="trail-heading-image" src="experience/assets/poster.png" alt="" fetchpriority="low"><h1 id="library-title" tabindex="-1">装备库</h1><p class="description">按用途查看普通用品与具体商品；品牌资料、商家参考和缺项分别标注，3D可用状态以具体型号为准。</p></div>
+      <section class="gear-personal panel" aria-label="我的装备概览">
+        <div><p class="eyebrow">YOUR GEAR, YOUR TRAIL</p><h2>从你的装备，开始下一次山行。</h2><p class="subtle">记录已拥有的具体型号，出发时再核对行前清单。仅保存在当前浏览器。</p></div>
+        <div class="gear-personal-metrics"><span><strong id="owned-gear-count">—</strong> 个已拥有型号</span><span><strong id="owned-gear-available">—</strong> 个可用于3D装包</span></div>
+        <div class="gear-personal-links"><a href="#checklist">查看行前清单 →</a><a href="#plan">规划下一次山行 →</a><button type="button" data-workbench-entry data-plan-history-entry disabled>历史装包方案 →</button></div>
+      </section>
+      <div class="gear-view-switch" role="group" aria-label="查看装备范围"><button type="button" data-owned-view="all" aria-pressed="true">全部装备</button><button type="button" data-owned-view="mine" aria-pressed="false">我的装备</button><button type="button" id="reference-gear-jump">清单参考 ↓</button></div>
+      <p id="owned-gear-notice" class="subtle" role="status"></p>
+      <section class="catalog-search-hero panel" aria-labelledby="catalog-search-title">
+        <p class="eyebrow">FIND YOUR NEXT PIECE</p><h2 id="catalog-search-title">找到适合你的山行装备。</h2>
+        <form id="product-search-form" role="search" aria-label="搜索装备库">
+          <label for="product-search">装备、品牌、型号或已记录参数</label>
+          <div class="catalog-search-row"><input id="product-search" type="search" placeholder="例如：挪客 睡垫、Nalgene 32oz" autocomplete="off" enterkeyhint="search" aria-describedby="product-search-summary"><button id="product-search-clear" type="button" disabled>清空</button><button type="submit" class="button primary">搜索</button></div>
+        </form>
+        <div class="catalog-search-examples" role="group" aria-label="试试这些搜索"><span>试试：</span><button type="button" data-search-example="睡袋">睡袋</button><button type="button" data-search-example="水壶">水壶</button><button type="button" data-search-example="头灯">头灯</button><button type="button" data-search-example="无品牌">无品牌用品</button></div>
+        <p id="product-search-summary" class="subtle" role="status">正在载入装备资料…</p>
+      </section>
+      <section id="product-catalog" class="panel product-catalog" aria-labelledby="product-catalog-title">
+        <div class="catalog-heading"><div><p class="eyebrow">FIND YOUR GEAR</p><h2 id="product-catalog-title">选择装备品牌与具体型号</h2><p class="subtle">先选用途和装备细类，再选择品牌、型号与尺码。资料不完整的商品可查看，但暂不能用于3D装包。</p></div><button id="product-reset" type="button">重置筛选</button></div>
+        <div class="catalog-layout"><aside aria-label="装备细分分类">
+        <details open class="catalog-categories"><summary>分类导航 · 9大类</summary><div id="equipment-coverage" class="equipment-coverage"></div></details>
+        </aside><div class="catalog-results">
+        <div class="catalog-filters">
+          <label>用途大类<select id="product-group"><option value="">全部用途</option></select></label>
+          <label>装备细类<select id="product-category"><option value="">全部细类</option></select></label>
+          <label>装备品牌<select id="product-brand"><option value="">全部品牌</option></select></label>
+          <label>接入状态<select id="product-availability"><option value="">全部状态</option><option value="available">可添加到3D</option><option value="reference">仅资料参考</option></select></label>
+          <label>资料来源<select id="product-source"><option value="">全部来源</option><option value="official">品牌资料</option><option value="retailer">商家参考</option><option value="unbranded">品牌未注明</option></select></label>
+        </div><p id="product-count" class="subtle" role="status"></p>
+        <p id="generic-category-notice" class="subtle" hidden></p>
+        <section id="product-selection" class="catalog-selection" aria-labelledby="product-selected-title" hidden>
+          <p class="eyebrow">已选择的具体型号</p><h3 id="product-selected-title"></h3>
+          <p id="product-selected-info"></p><p id="product-selected-status" role="status"></p>
+          <details><summary>查看尺寸、来源口径与限制</summary><p id="product-selected-facts"></p></details>
+          <a id="product-selected-source" target="_blank" rel="noopener noreferrer">查看此型号的参数来源 ↗</a>
+          <div class="catalog-selection-actions"><button id="product-selected-pack" class="button primary" type="button">在3D装包中使用</button><button id="product-selected-load-reference" type="button" hidden>用作负重参考</button><button id="product-clear-selection" type="button">清除选择</button></div>
+        </section>
+        <p id="product-empty" class="catalog-empty" hidden>没有符合条件的具体商品。可重置筛选或选择其他品牌；该分类缺少资料时不会生成虚构型号。</p>
+        <div id="official-product-library" class="gear-grid">正在读取本地型号资料…</div>
+        </div></div>
+      </section>
+      <h2 id="reference-gear">行前清单参考（非商品型号总数）</h2>
+      <div class="library-toolbar"><label for="category-filter">清单参考分类 <select id="category-filter"><option value="all">全部分类</option></select></label><p id="library-count" class="subtle" role="status"></p></div>
+      <div id="gear-grid" class="gear-grid"></div>
+    </section>
+
+    <section id="view-checklist" class="view" aria-labelledby="checklist-title" hidden>
+      <div class="page-heading trail-heading"><img class="trail-heading-image" src="experience/assets/poster.png" alt="" fetchpriority="low"><h1 id="checklist-title" tabindex="-1">我的清单</h1><p class="description">只记录你已实际准备好的装备，出发前再核对一次。</p><div id="checklist-heading-progress" class="trail-heading-progress" hidden><span id="checklist-plan"></span><strong id="progress-count" role="status" aria-atomic="true"></strong></div></div>
+      <div id="checklist-empty" class="panel empty-state"><span aria-hidden="true">↗</span><h2>先为这次山行定个计划</h2><p>选择一日或过夜徒步，生成属于这次行程的基础清单。</p><a class="button primary" href="#plan">创建徒步计划 →</a></div>
+      <div id="checklist-content" hidden>
+        <div id="checklist-weather-slot"><details id="trip-weather-panel" class="panel trip-weather-panel" hidden>
+          <summary id="trip-weather-summary">点位预报</summary>
+          <p id="trip-weather" class="field-help" role="status"></p>
+          <button id="trip-weather-refresh" type="button" class="button secondary">重新查询预报</button>
+        </details></div>
+        <div class="panel progress-panel"><div class="progress-top"><h2>装备准备进度</h2><a class="button secondary" href="#plan">调整计划</a></div><div class="progress-label"><span id="progress-percent"></span></div><progress id="preparation-progress" max="1" value="0" aria-label="装备准备进度"></progress><p id="pending-summary" class="subtle" role="status"></p></div>
+        <details class="panel trip-choice-picker"><summary>选择携带物品 · 添加计划之外的装备</summary><p class="subtle">携带选择独立于准备勾选；没有可直接带入的模型时仍保留在清单中，不编造尺寸或重量。</p><div id="checklist-trip-choices" data-trip-choices></div></details>
+        <section class="panel trip-packing-cta" aria-label="按计划开始装包"><div><p class="eyebrow">调整计划 → 核对清单 → 3D装包</p><h2>先选好装备，再装进行囊。</h2><p id="trip-packing-preview" class="subtle"></p></div><button id="checklist-auto-packing" type="button" class="button primary" data-workbench-entry data-trip-packing-entry data-auto-trip-packing-entry disabled>自动装载已选装备 →</button><button id="checklist-start-packing" type="button" class="button secondary" data-workbench-entry data-trip-packing-entry disabled>手动装包 →</button></section>
+        <div class="checklist-toolbar"><div class="filter-buttons" role="group" aria-label="筛选准备状态"><button type="button" data-filter="all" aria-pressed="true">全部</button><button type="button" data-filter="pending" aria-pressed="false">待准备</button><button type="button" data-filter="ready" aria-pressed="false">已准备</button></div><span class="subtle">勾选后自动保存</span></div>
+        <div id="checklist-groups" class="checklist-groups"></div>
+        <p class="reference-note checklist-note">清单仅供参考，勾选进度不代表出行安全评估。请根据实际路线、天气与个人情况核对；本清单不包含重量或背包空间计算。</p>
+      </div>
+    </section>
+  </main>
+  <dialog id="packing-workbench" aria-labelledby="workbench-title">
+    <div class="workbench-heading"><div><p class="eyebrow">PACK FOR YOUR TRAIL</p><h2 id="workbench-title">3D 装包工作台</h2></div><button id="wb-close" type="button">关闭工作台</button></div>
+    <details class="wb-exterior-reference"><summary id="wb-exterior-summary">背包外部尺寸与来源</summary><p id="wb-exterior-reference"></p></details>
+    <section id="wb-trip-context" class="wb-trip-context" aria-label="当前徒步计划" hidden><div><strong id="wb-trip-label"></strong><p id="wb-trip-message" role="status"></p><details><summary>仍需在行前清单核对</summary><p id="wb-trip-checklist-only"></p></details></div><button id="wb-back-to-plan" type="button">返回调整计划</button></section>
+    <div class="workbench-layout">
+      <aside class="workbench-library" aria-label="添加与选择装备">
+        <h3>带上你的装备</h3><p class="wb-muted">选择装备，逐件放进背包。</p>
+        <label class="workbench-picker" for="wb-equipment">装备库 <select id="wb-equipment"></select></label>
+        <label class="workbench-picker" for="wb-product">具体型号 <select id="wb-product"><option value="">演示装备（非真实型号）</option></select></label>
+        <p id="wb-product-note" class="wb-muted">原有演示装备保留；真实型号尺寸与几何近似分别标注。</p>
+        <button id="wb-auto-add" type="button" class="button primary">＋ 添加装备</button>
+        <p class="wb-muted">选择后点击添加，即自动装包并播放装载动画；手动位置保持不变。</p><div class="wb-load-feedback"><p id="wb-load-result" class="wb-muted" role="status" hidden></p><button id="wb-stop-auto" type="button" hidden>取消装载</button></div>
+        <p id="wb-auto-result" class="wb-muted" role="status" hidden></p><button id="wb-undo-auto" type="button" aria-describedby="wb-undo-note" hidden disabled>撤销本次布局</button><p id="wb-undo-note" class="wb-muted" hidden>后续操作已改变场景，不能撤销旧布局；当前手动位置保持不变。</p>
+        <section id="wb-pending" class="wb-pending" aria-labelledby="wb-pending-title" hidden><h4 id="wb-pending-title">待调整装备</h4><p class="wb-muted">尚未确认的装备不计入占用率和已放置重量。</p><ul id="wb-pending-items"></ul></section>
+        <button id="wb-add" type="button">仅手动添加（不自动装包）</button>
+        <button id="wb-import-checklist" type="button">从已准备清单添加</button>
+        <label class="workbench-picker wb-instance-label" for="wb-instances">已添加装备 <select id="wb-instances" size="7"><option value="">请选择装备</option></select></label>
+        <p class="wb-muted">同款可以重复添加。点击列表或场景中的装备即可选中。</p>
+        <label class="workbench-picker" for="wb-placement-type">放置方式<select id="wb-placement-type" disabled><option value="internal">背包内部</option><option value="external">固定点外挂</option></select></label>
+        <label id="wb-anchor-picker" class="workbench-picker" for="wb-anchor" hidden>外挂位置<select id="wb-anchor"></select></label>
+        <p id="wb-external-note" class="wb-muted" hidden>演示外挂点，非真实扣具。选择固定位置后确认；不可自由悬浮或旋转。区域不符或已被占用时不能确认。不计内仓占用率，仍计数量和已核验重量。当前是折叠蛋巢垫几何示意，非具体品牌型号。</p>
+      </aside>
+      <section class="workbench-stage" id="wb-scene-panel" aria-label="装包场景与主要操作">
+        <div class="wb-selection"><strong id="wb-selection-name">选择装备开始装包</strong></div>
+        <div class="wb-view-tools" role="group" aria-label="背包查看方式"><button id="wb-show-bag" type="button" aria-pressed="true">背包外观</button><button id="wb-transparent-bag" type="button" aria-pressed="false">透明背包</button><button id="wb-hide-bag" type="button" aria-pressed="false">包内物品</button><span id="wb-view-hint" class="wb-muted" role="status">切到包内物品，可直接查看和选择装备。</span></div>
+        <div class="wb-feedback" aria-label="放置状态与提醒" tabindex="0">
+          <p id="wb-collision" role="status" aria-live="polite" data-state="none">选择装备开始装包</p>
+          <p id="wb-draft-note" role="status" aria-live="polite" hidden></p>
+        </div>
+        <div id="workbench-canvas-slot"></div>
+        <div class="wb-action-dock">
+          <div class="wb-mode-switch" role="group" aria-label="操作模式"><button id="wb-translate" type="button" aria-pressed="true" disabled>移动</button><button id="wb-rotate" type="button" aria-pressed="false" disabled>旋转</button></div>
+          <button id="wb-confirm" type="button" disabled>确认放置</button><button id="wb-cancel" type="button" disabled>取消操作</button>
+          <button id="wb-remove" type="button" disabled>移除装备</button>
+          <button id="wb-auto-entry" type="button" disabled>自动装包</button>
+          <details id="wb-more"><summary>更多操作</summary><div class="wb-more-content"><button id="wb-select" type="button" disabled>编辑所选装备</button><button id="wb-reset" type="button" disabled>重置位置</button></div></details>
+        </div>
+        <p id="wb-guidance" class="wb-muted">点击添加装备后自动装载；可微调或保存方案，手动位置会保留。</p>
+      </section>
+      <aside class="workbench-actions" aria-label="装包信息与设置">
+        <details id="wb-plans"><summary>方案、历史与自动装包</summary>
+          <label class="workbench-picker">方案名称<input id="wb-plan-name" value="我的装包方案" maxlength="80"></label><button id="wb-save-plan" type="button">保存到本机</button><button id="wb-load-plan" type="button">读取最近方案</button>
+          <p id="wb-plan-message" class="wb-muted" role="status">保存已确认的位置、型号及手动保护状态；待放置和未确认的姿态修改不保存。仅保存在当前浏览器。</p>
+          <section class="wb-history" aria-labelledby="wb-history-title"><h4 id="wb-history-title">历史装包方案</h4><p class="wb-muted">仅存于当前浏览器；清理浏览器数据会丢失，不支持跨设备同步。</p><label class="workbench-picker">名称 · 保存时间 · 装备数<select id="wb-history"><option value="">选择历史装包方案</option></select></label><p id="wb-history-detail" class="wb-muted"></p><div class="wb-history-buttons"><button id="wb-load-history" type="button">读取选中记录</button><button id="wb-refresh-history" type="button">刷新列表</button><button id="wb-delete-history" type="button">删除选中记录</button></div><p id="wb-history-message" class="wb-muted" role="status">仅在本机保存；清理浏览器数据会丢失，暂不支持跨设备同步。</p></section>
+          <label class="wb-muted"><input id="wb-assist" type="checkbox">按装包规律持续优化（保留手动调整）</label><p class="wb-muted">新增、删除或结束调整后更新未锁定布局；不改装备尺寸。<a href="https://www.rei.com/learn/expert-advice/loading-backpack.html" target="_blank" rel="noreferrer">装包建议来源 ↗</a></p><button id="wb-auto-pack" type="button">自动摆放待放置装备</button><p id="wb-auto-message" class="wb-muted" role="status">保留已确认位置；优先内装，再尝试兼容挂点。有限搜索不保证最优解。</p></details>
+        <h3>装包概览</h3>
+        <section class="wb-load-card" aria-labelledby="wb-load-title">
+          <h4 id="wb-load-title">重量进度</h4>
+          <label for="wb-load-reference">负重参考背包</label>
+          <select id="wb-load-reference"><option value="">当前演示背包 · 负重范围未知</option></select>
+          <p id="wb-load-model" class="wb-muted"></p>
+          <p id="wb-load-preference-note" class="wb-muted" role="status" hidden></p>
+          <p id="wb-load-range" class="wb-muted">暂无已核验负重范围</p>
+          <strong id="wb-load-value">暂无官方重量数据</strong>
+          <div id="wb-load-progress" class="wb-load-track" role="progressbar" aria-label="已核验装备重量与背包参考上限对照" aria-valuetext="暂无已核验负重范围"><span id="wb-load-band" hidden></span><span id="wb-load-fill"></span><span id="wb-load-marker" hidden></span></div>
+          <p id="wb-load-status" role="status" class="wb-muted"></p>
+          <details><summary>计重口径与来源</summary><p class="wb-muted">仅对照已确认内装及外挂装备的已核验重量。未知重量不按0处理；未计水、食物及背包自重。厂家范围是否含包自重未明确，不能据此认定实际负重合适。切换参考型号不更换3D外观或内仓。</p><a id="wb-load-source" target="_blank" rel="noopener noreferrer" hidden>查看官方负重资料 ↗</a></details>
+        </section>
+        <div class="wb-metrics"><div><span>已确认放置的装备</span><strong id="wb-count">0 件</strong></div><div><span>模拟空间占用率（近似）</span><strong id="wb-space-rate">0.0%</strong></div><div><span>已核验装备重量</span><strong id="wb-known-weight">暂无官方数据</strong></div><div><span>尚未核验重量</span><strong id="wb-unknown-count">0 件</strong></div><div><span>背包自重</span><strong id="wb-backpack-weight">暂无官方数据</strong></div></div>
+        <p id="wb-placement-counts" class="wb-muted">内部 0 件 · 外挂 0 件 · 待放置 0 件</p>
+        <p id="wb-weight-completeness" class="wb-muted"></p>
+        <p id="wb-alignment-note" class="wb-muted">有效区域为按外形采样建立的保守截面近似，不代表真实内仓。</p>
+        <details id="wb-dimensions"><summary>尺寸与比例说明</summary><p id="wb-dimension-summary"></p><p id="wb-packed-dimension-note">收纳参考尺寸正在加载，均非官方参数。</p></details>
+        <details id="wb-statistics"><summary>空间与重量明细</summary>
+          <p id="wb-space-summary" role="status"></p>
+          <p id="wb-weight-summary" role="status"></p>
+          <ul id="wb-weight-items"></ul>
+          <p id="wb-product-spec"></p>
+          <p>仅已核验的具体型号重量参与统计；演示及缺失数据保持未知。来源与日期可在装备库查看，不提供手填或修改重量功能。</p>
+        </details>
+        <details id="wb-precision"><summary>精确调整</summary>
+        <fieldset><legend>世界位置（米）</legend><div class="pose-fields">
+          <label>X <input aria-label="所选装备位置 X 米" type="number" step="0.01" data-pose="position" data-axis="x" disabled></label>
+          <label>Y <input aria-label="所选装备位置 Y 米" type="number" step="0.01" data-pose="position" data-axis="y" disabled></label>
+          <label>Z <input aria-label="所选装备位置 Z 米" type="number" step="0.01" data-pose="position" data-axis="z" disabled></label>
+        </div></fieldset>
+        <fieldset><legend>旋转（度，内部使用弧度 XYZ）</legend><div class="pose-fields">
+          <label>X <input aria-label="所选装备旋转 X 度" type="number" step="5" data-pose="rotation" data-axis="x" disabled></label>
+          <label>Y <input aria-label="所选装备旋转 Y 度" type="number" step="5" data-pose="rotation" data-axis="y" disabled></label>
+          <label>Z <input aria-label="所选装备旋转 Z 度" type="number" step="5" data-pose="rotation" data-axis="z" disabled></label>
+        </div></fieldset>
+        </details>
+        <details id="wb-display"><summary>显示设置</summary><details id="wb-animation-controls"><summary>动效控制</summary><section id="wb-playback" class="wb-playback" aria-label="装载动效控制" hidden><p id="wb-playback-message" class="wb-muted" role="status"></p><progress id="wb-playback-progress" max="1" value="0" aria-label="布局演示进度"></progress><button id="wb-playback-pause" type="button" aria-pressed="false">暂停</button><button id="wb-playback-skip" type="button">跳过</button><button id="wb-playback-replay" type="button">重播</button></section></details><label><input id="wb-reduce-motion" type="checkbox"> 减少动画（跟随系统偏好，可手动切换）</label><p>添加、确认、复位与移除使用短暂视觉反馈；复位过渡不代表实际装入路径。</p><label><input id="wb-show-proxies" type="checkbox"> 显示装备碰撞盒（调试）</label><label><input id="wb-show-space" type="checkbox" checked> 显示有效演示区域（非真实内仓）</label><label><input id="wb-show-alignment" type="checkbox"> 对齐调试：外观边界 / 有效边界 / 局部轴 / 中心</label><pre id="wb-alignment-readout" hidden style="white-space:pre-wrap;overflow-wrap:anywhere;max-height:18rem;overflow:auto"></pre><p>移动箭头和旋转圆环仅在编辑时显示。金色框为外观包络、蓝色分段轮廓为有效区域，红点为其中心；包络包含不能证明真实内壁包含。</p></details>
+        <details id="wb-debug"><summary>开发信息</summary><p id="wb-status">工作台准备中</p><p id="wb-debug-collision"></p><p>AABB 快筛 + OBB 检测；模拟空间来自独立演示配置，非实测。接触容差 0.00001 m。新装备未确认不占位，已确认装备的草稿保留原确认位置。</p></details>
+        <p class="wb-muted">取消新装备会撤销添加，取消已放置装备会恢复修改前状态。几何图示不代表真实装载能力。</p>
+      </aside>
+    </div>
+  </dialog>
+  <footer><span>为下一次山行，做好准备。</span><span>山行装箱 / 本地装备规划</span></footer>
+  <noscript>请启用浏览器 JavaScript 以查看 3D 模型。</noscript>
+  <script type="module">
+    import('./planner.js').catch(error => {
+      console.error(error);
+      document.querySelector('#planner-error').hidden = false;
+    });
+    import('./app.js').catch(error => {
+      console.error(error);
+      document.querySelector('#loading').hidden = true;
+      document.querySelector('#error').hidden = false;
+      document.querySelector('#error-detail').textContent = '页面程序未能启动。请双击 start-demo.cmd 启动，再通过 http://127.0.0.1:8080 打开；同时确认 vendor 文件夹完整。';
+      document.querySelector('#status').textContent = '加载失败';
+    });
+  </script>
+  <script>document.querySelector('#retry').onclick = () => location.reload();</script>
+</body>
+</html>
